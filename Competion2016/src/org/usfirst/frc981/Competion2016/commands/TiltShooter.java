@@ -18,7 +18,7 @@ import org.usfirst.frc981.Competion2016.Robot;
 import org.usfirst.frc981.Competion2016.subsystems.ShooterSubsystem;
 
 /**
- *
+ * This is suppossed to control tilting the shooter.
  */
 public class TiltShooter extends Command {
 
