@@ -18,7 +18,7 @@ import org.usfirst.frc981.Competion2016.Robot;
 import org.usfirst.frc981.Competion2016.subsystems.ShooterSubsystem;
 
 /**
- *
+ * @author steele
  */
 public class ShootBoulder extends Command {
 
