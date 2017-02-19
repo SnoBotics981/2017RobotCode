@@ -58,33 +58,11 @@ public class GearManipulator extends Subsystem {
     }
     
     public boolean isPaddleOpen () {
-    	return true;
-    	/*
-    	leftPaddleState = leftPaddleSolenoid.get();
-    	rightPaddleState = rightPaddleSolenoid.get();
-    	
-    	if ((leftPaddleState == DoubleSolenoid.Value.kForward) &&
-    			(rightPaddleState == DoubleSolenoid.Value.kForward)) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    	*/
+    	return (paddleSolenoid.get() == (DoubleSolenoid.Value.kReverse));
     }
     
     public boolean isPaddleClosed () {
-    	return true;
-    	/*
-    	leftPaddleState = leftPaddleSolenoid.get();
-    	rightPaddleState = rightPaddleSolenoid.get();
-    	
-    	if ((leftPaddleState == DoubleSolenoid.Value.kReverse) &&
-    			(rightPaddleState == DoubleSolenoid.Value.kReverse)) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    	*/
+    	return (paddleSolenoid.get() == (DoubleSolenoid.Value.kForward));
     }
     	
 }
