@@ -75,10 +75,10 @@ public class ClimbRope extends Command {
     	buttonState = Robot.oi.buttonToConfirmRopeClimber.get();
     	if (buttonState) {
     		axisValue = Robot.oi.coPilotJoystick.getY();
-    		if (axisValue > 0) {
+    		if (axisValue < 0) {
     			Robot.ropeClimber.setMotorVoltage(axisValue);
     		} else {
-    			Robot.ropeClimber.setMotorVoltage(0);
+    		    Robot.ropeClimber.setMotorVoltage(0);
     		}
     	} else {
     		Robot.ropeClimber.setMotorVoltage(0);

@@ -90,7 +90,10 @@ public class DriveSystem extends Subsystem {
      */
     
     public void useJoystickInputs () {
-    	robotDrive4.tankDrive(Robot.oi.leftJoystick, Robot.oi.rightJoystick);
+    	// robotDrive4.tankDrive(Robot.oi.leftJoystick, Robot.oi.rightJoystick);
+    	double leftValue = -Robot.oi.leftJoystick.getY();
+    	double rightValue = Robot.oi.rightJoystick.getY();
+    	robotDrive4.tankDrive(leftValue, rightValue);
     }
     
     public void stop () {
@@ -110,6 +113,10 @@ public class DriveSystem extends Subsystem {
     
     public double getRightEncoderCount () {
     	return rightQuadratureEncoder.get();
+    }
+    
+    public void autoDrive (double speedLeft, double speedRight) {
+    	robotDrive4.tankDrive(speedLeft, speedRight); // left was going in reverse, negative sign should fix
     }
 }
 
