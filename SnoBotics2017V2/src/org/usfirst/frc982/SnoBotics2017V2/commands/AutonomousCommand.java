@@ -67,6 +67,7 @@ public class AutonomousCommand extends Command {
     // subsystems is scheduled to run
     protected void interrupted() {
     	Robot.driveSystem.stop();
+    	Robot.driveSystem.shiftToHigh();
     	autoTimer.stop();
     }
 }
