@@ -11,6 +11,7 @@
 
 package org.usfirst.frc982.SnoBotics2017V2.subsystems;
 
+import org.usfirst.frc982.SnoBotics2017V2.Robot;
 import org.usfirst.frc982.SnoBotics2017V2.RobotMap;
 import org.usfirst.frc982.SnoBotics2017V2.commands.*;
 
@@ -19,6 +20,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 /**
@@ -52,16 +54,18 @@ public class HealthMonitoring extends Subsystem {
     }
     
     public double getPressure () {
-    	return pressureSensorAnalogInput.getVoltage();
+    	return 0.0; // pressureSensorAnalogInput.getVoltage();
     }
     
     public double getCurrentOfPDP () {
-    	return powerDistributionPanel.getTotalCurrent();
+    	return 0;
+    	//SmartDashboard.putNumber("PDP Power", Robot.healthMonitoring.getCurrentOfPDP());
+    	//return powerDistributionPanel.getTotalCurrent();
     }
     
-    Compressor compressor = new Compressor(0);
-    public boolean getCompressorStatus () {
-    	return compressor.enabled();
-    }
+    //Compressor compressor = new Compressor(0);
+    //public boolean getCompressorStatus () {
+    //	return compressor.enabled();
+    //}
 }
 
