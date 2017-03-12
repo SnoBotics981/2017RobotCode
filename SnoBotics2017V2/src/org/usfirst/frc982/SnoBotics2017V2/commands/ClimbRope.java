@@ -51,6 +51,7 @@ public class ClimbRope extends Command {
     protected void initialize() {
     	Robot.ropeClimber.setMode(TalonControlMode.PercentVbus); // or Current Mode
     	startTime = Timer.getFPGATimestamp();
+    	// Robot.ropeClimber.turnCompressorOff();
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -84,11 +85,13 @@ public class ClimbRope extends Command {
     	if (buttonState) {
     		axisValue = Robot.oi.coPilotJoystick.getY();
     		if (axisValue < 0) {
+    			Robot.ropeClimber.turnCompressorOff();
     			Robot.ropeClimber.setMotorVoltage(axisValue);
     		} else {
     		    Robot.ropeClimber.setMotorVoltage(0);
     		}
     	} else {
+    		Robot.ropeClimber.turnCompressorOn();
     		Robot.ropeClimber.setMotorVoltage(0);
     	}
     }
@@ -116,11 +119,13 @@ public class ClimbRope extends Command {
     // Called once after isFinished returns true
     protected void end() {
     	Robot.ropeClimber.setMotorVoltage(0.0);
+    	Robot.ropeClimber.turnCompressorOn();
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
     	Robot.ropeClimber.setMotorVoltage(0);
+    	Robot.ropeClimber.turnCompressorOn();
     }
 }

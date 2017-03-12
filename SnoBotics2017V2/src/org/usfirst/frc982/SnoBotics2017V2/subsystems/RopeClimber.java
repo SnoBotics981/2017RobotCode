@@ -18,6 +18,7 @@ import com.ctre.CANTalon;
 import com.ctre.CANTalon.TalonControlMode;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
@@ -78,6 +79,16 @@ public class RopeClimber extends Subsystem {
     
     public int getEncoderCount () {
     	return quadratureEncoder1.get();
+    }
+    
+    Compressor compressor = new Compressor(0);
+    
+    public void turnCompressorOff () {
+    	compressor.stop();
+    }
+    
+    public void turnCompressorOn () {
+    	compressor.start();
     }
 }
 

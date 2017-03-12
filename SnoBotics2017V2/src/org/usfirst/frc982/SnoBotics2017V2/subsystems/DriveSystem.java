@@ -115,8 +115,30 @@ public class DriveSystem extends Subsystem {
     	return rightQuadratureEncoder.get();
     }
     
-    public void autoDrive (double speedLeft, double speedRight) {
-    	robotDrive4.tankDrive(speedLeft, speedRight); // left was going in reverse, negative sign should fix
+    public void autoDrive (double speedLeft, double speedRight) { // should be deprecated
+    	// may need to change signs to get thing moving in the 'correct' direction
+    	// note how I have a negative sign for the leftValue in the useJoystickInput function
+    	robotDrive4.tankDrive(speedLeft, -speedRight);
+    }
+    
+    public void autoDriveReverse (double speedLeft, double speedRight) {
+    	// may need to change signs to get thing moving in the 'correct' direction
+    	// note how I have a negative sign for the leftValue in the useJoystickInput function
+    	robotDrive4.tankDrive(speedLeft, -speedRight);
+    }
+    
+    public void autoDriveForward (double speedLeft, double speedRight) {
+    	// may need to change signs to get thing moving in the 'correct' direction
+    	// note how I have a negative sign for the leftValue in the useJoystickInput function
+    	robotDrive4.tankDrive(-speedLeft, +speedRight);
+    }
+    
+    public void autoDriveTurnLeft (double speed) {
+    	robotDrive4.tankDrive(speed, speed);
+    }
+    
+    public void autoDriveTurnRight (double speed) {
+    	robotDrive4.tankDrive(-speed, -speed);
     }
 }
 
