@@ -41,7 +41,8 @@ public class AutonomousCommand extends Command {
 	// public static Timer autoTimer; // timer used by the Autonomous Command
     public static final double AngleCenterPoint  = 10.0;
     public static final double finalDistance     = 10.0;
-    public static final double driveHalfSpeed    =  0.5;
+    public static final double drive60Percent    =  0.60;
+    public static final double driveHalfSpeed    =  0.50;
     public static final double driveQuarterSpeed =  0.25;
     
     public static int counter = 0;
@@ -51,10 +52,13 @@ public class AutonomousCommand extends Command {
 		DEAD_RECKON_REVERSE,
 		DEAD_RECKON_TURN_LEFT,
 		DEAD_RECKON_TURN_RIGHT,
+		DEAD_RECKON_TO_PEG,
 		VISION_TURN,
 		VISION_DRIVE_FORWARD,
 		VISION_DRIVE_REVERSE,
-		BACK_AWAY_FROM_TARGET,
+		RELEASE_GEAR,
+		WAIT_1_4_SECOND_AFTER_GEAR_RELEASE,
+		BACK_AWAY_FROM_PEG,
 		TERMINATION};
 	AutoPhases phase = AutoPhases.DEAD_RECKON_FORWARD;
 	NetworkTable table;
@@ -84,7 +88,11 @@ public class AutonomousCommand extends Command {
 	 */
 	
 	public double distanceCalculation (double closeness) {
-		double resultantDistance = 0;
+		double resultantDistance = -1;
+		
+		if (closeness <= 0) {
+			return -1; // abort if range reported is <= 0
+		}
 		if (closeness > 4100) {
 			resultantDistance = 10.0;
 		}
@@ -104,7 +112,7 @@ public class AutonomousCommand extends Command {
 			if (closeness > distanceTable[index][1]) {
 				
 				/**
-				 * So we have found a vaule in the array small than the closeness
+				 * So we have found a value in the array small than the closeness
 				 * argument. I liberated this from the wikipedia article on Linear Interpolation.
 				 */
 				
@@ -122,13 +130,8 @@ public class AutonomousCommand extends Command {
 	
     // Called just before this Command runs the first time
     protected void initialize() {
-    	Robot.driveSystem.shiftToLow();
     	phase = AutoPhases.PAUSE_025_COUNT;
-    	// phase = AutoPhases.DEAD_RECKON_FORWARD;
     	counter = 0;
-    	
-    	// autoTimer.reset();
-    	// autoTimer.start();
     	
     	/**
     	 *  With these three statements commented out I was able to get
@@ -157,6 +160,9 @@ public class AutonomousCommand extends Command {
      */
     
     protected void execute() {
+    	
+    	// First get the info from the camera
+    	
     	double angle;
     	double closeness;
     	
@@ -165,127 +171,163 @@ public class AutonomousCommand extends Command {
 		
 		double distance = distanceCalculation (closeness);
 		
+		// table.putNumber("distance", distance);
+		// table.putValue("phase", phase);
+		
     	++counter; // timer wasn't working so I opted for a counter
     	
     	// should tickle the drive system every iteration
-    	// Robot.driveSystem.autoDrive(0, 0); // this should be removed SOON
   
     	switch (phase) {
     	
+    	// pause for 1/4 of a second to make sure the compressor is running
+
     	case PAUSE_025_COUNT:
-    		Robot.driveSystem.autoDriveForward(0, 0);
+    		Robot.driveSystem.autoDriveForward(0);
     		if (counter < 25) {
     			phase = AutoPhases.PAUSE_025_COUNT;
     		} else {
     			phase = AutoPhases.DEAD_RECKON_FORWARD;
+    			Robot.driveSystem.shiftToLow();
     			counter = 0;
     		}
     		break;
     	
-    	case DEAD_RECKON_FORWARD: // drive straight
-    		Robot.driveSystem.shiftToLow();
-    		Robot.driveSystem.autoDriveForward(driveHalfSpeed, driveHalfSpeed);
+    	// dead reckon from the starting location
     		
-    		// if (autoTimer.get() > 1.0) {
+    	case DEAD_RECKON_FORWARD: // drive straight
+    		Robot.driveSystem.autoDriveForward(driveHalfSpeed);
     		
     		/**
     		 * Each count is approximately 0.020 seconds
     		 */
-    		if (counter > 100) {
+    		
+    		if (counter > 200) { // 4 seconds
     			phase = AutoPhases.DEAD_RECKON_TURN_LEFT;
-    			// autoTimer.reset();
     			counter = 0;
     		}
     		break;
     		
     	case DEAD_RECKON_REVERSE:
-    		Robot.driveSystem.autoDrive(0, 0);
-    		counter = 0;
+    		Robot.driveSystem.stop();
     		phase = AutoPhases.TERMINATION;
+    		counter = 0;
     		break;
     		
-    	case DEAD_RECKON_TURN_LEFT: // turn to goal
-    		Robot.driveSystem.autoDrive(driveHalfSpeed, -driveHalfSpeed);
+    	// Turn left to face the peg
     		
-    		if (counter > 50) {
-    			phase = AutoPhases.VISION_TURN;
-    			// autoTimer.reset();
-    			// for debugging go to termination swicth
-    			phase = AutoPhases.TERMINATION;
+    	case DEAD_RECKON_TURN_LEFT: // turn to goal
+    		Robot.driveSystem.autoDriveTurnLeft(drive60Percent);
+    		
+    		if (counter > 50) { // turn for 2 seconds
+    			// phase = AutoPhases.VISION_TURN;
+    			// phase = AutoPhases.TERMINATION;
+    			phase = AutoPhases.RELEASE_GEAR;
     			counter = 0;
     		}
     		break;
     		
     	case DEAD_RECKON_TURN_RIGHT: // turn to goal
-    		Robot.driveSystem.autoDrive(-driveHalfSpeed, driveHalfSpeed);
+    		Robot.driveSystem.autoDriveTurnRight(driveHalfSpeed);
     		
-    		if (counter > 25) {
+    		if (counter > 50) { // turn for 1 second
     			phase = AutoPhases.VISION_TURN;
-    			// autoTimer.reset();
-    			// for debugging go to termination switch
-    			phase = AutoPhases.TERMINATION;
     			counter = 0;
     		}
     		break;
     		
+    	// Use the vision system to turn to the goal
+    		
     	case VISION_TURN: // use vision to turn to goal
     		
-    		if ((angle < AngleCenterPoint) || (angle < -AngleCenterPoint)) {
-    			Robot.driveSystem.autoDrive(0, 0);
+    		// first need to check that the camera is giving valid looking data
+    		
+    		if (distance <= 0) { // if negative distance information is invalid
+    			Robot.driveSystem.stop();
+    			phase = AutoPhases.DEAD_RECKON_TO_PEG;
+    			counter = 0;
+    		} else if ((angle < AngleCenterPoint) && (angle > -AngleCenterPoint)) {
+    			Robot.driveSystem.stop();
     			phase = AutoPhases.VISION_DRIVE_FORWARD;
-    			// autoTimer.reset();
     			counter = 0;
     		} else if (angle > AngleCenterPoint) {
-    			Robot.driveSystem.autoDrive(driveQuarterSpeed, 0);
+    			Robot.driveSystem.autoDriveTurnLeft(driveQuarterSpeed);
     			phase = AutoPhases.VISION_TURN;
     		} else if (angle < -AngleCenterPoint) {
-    			Robot.driveSystem.autoDrive(0, driveQuarterSpeed);
+    			Robot.driveSystem.autoDriveTurnRight(driveQuarterSpeed);
     			phase = AutoPhases.VISION_TURN;
     		} else if (counter > 1000) {
-    			Robot.driveSystem.autoDrive(0, 0);
+    			Robot.driveSystem.stop();
     			phase = AutoPhases.VISION_DRIVE_FORWARD;
-    			// autoTimer.reset();
     			counter = 0;
     		}
-    		
     		break;
     		
     	case VISION_DRIVE_FORWARD: // drive toward the goal
 
-    		if (distance < finalDistance) {
-    			Robot.driveSystem.autoDrive(0, 0);
-    			phase = AutoPhases.TERMINATION;
-    			// autoTimer.reset();
+    		// At each iteration check to make sure the camera is still working
+    		
+    		if (distance < -1) {
+    			phase = AutoPhases.DEAD_RECKON_TO_PEG;
+    			counter = 0;
+    		} else if (distance < finalDistance) {
+    			Robot.driveSystem.autoDriveForward(0);
+    			phase = AutoPhases.RELEASE_GEAR;
     			counter = 0;
     		} else if ((angle > AngleCenterPoint) || (angle < -AngleCenterPoint)) {
-    			Robot.driveSystem.autoDrive(0, 0);
+    			Robot.driveSystem.stop();
     			phase = AutoPhases.VISION_TURN;
-    			// autoTimer.reset();
     			counter = 0;
-     		} else if (counter < 5000) {
-    			Robot.driveSystem.autoDrive(driveHalfSpeed, driveHalfSpeed);
+     		} else if (counter < 500) { // give it 10 seconds to reach the goal
+    			Robot.driveSystem.autoDriveForward(driveHalfSpeed);
     			phase = AutoPhases.VISION_DRIVE_FORWARD;
-    		} else {
-        		Robot.driveSystem.autoDrive(0, 0);
-    			phase = AutoPhases.TERMINATION;
-    			// autoTimer.reset();
+    		} else { // 10 secconds has expired back away from the peg
+        		Robot.driveSystem.stop();
+    			phase = AutoPhases.BACK_AWAY_FROM_PEG;
     			counter = 0;
     		}
     		break;
     		
     	case VISION_DRIVE_REVERSE:
-    		Robot.driveSystem.autoDrive(0, 0);
-    		phase = AutoPhases.TERMINATION;  
+    		Robot.driveSystem.stop();
+    		phase = AutoPhases.TERMINATION;
+    		counter = 0;
     		break;
     		
-    	case BACK_AWAY_FROM_TARGET:
-    		Robot.driveSystem.autoDrive(0, 0);
+    	case RELEASE_GEAR:
+    		Robot.driveSystem.stop();
+    		Robot.gearManipulator.openPaddles();
+    		phase = AutoPhases.WAIT_1_4_SECOND_AFTER_GEAR_RELEASE;
+    		counter = 0;
+    		break;
+    		
+    	case WAIT_1_4_SECOND_AFTER_GEAR_RELEASE:
+    		Robot.driveSystem.stop();
+    		
+    		if (counter > 25) {
+    			phase = AutoPhases.BACK_AWAY_FROM_PEG;
+    			counter = 0;
+    		}
+    		break;
+    		
+    	case BACK_AWAY_FROM_PEG:
+    		Robot.driveSystem.stop();
     		phase = AutoPhases.TERMINATION;
     		break;
     		
+    	case DEAD_RECKON_TO_PEG: // drive forward 3 seconds
+    		Robot.driveSystem.autoDriveForward(driveHalfSpeed);
+    		/**
+    		 * Each count is approximately 0.020 seconds
+    		 */
+    		if (counter > 500) { // 50 is 1 seconds
+    			phase = AutoPhases.RELEASE_GEAR;
+    			counter = 0;
+    		}
+    		break;
+    		
     	case TERMINATION:
-    		Robot.driveSystem.autoDrive(0, 0);
-    		// autoTimer.reset();
+    		Robot.driveSystem.stop();
     		break;
     	}
     }
@@ -296,16 +338,16 @@ public class AutonomousCommand extends Command {
      }
 
     // Called once after isFinished returns true
+    
     protected void end() {
-    	// autoTimer.reset();
     	Robot.driveSystem.stop(); 
     	Robot.driveSystem.shiftToHigh();
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
+    
     protected void interrupted() {
-    	// autoTimer.reset();
     	Robot.driveSystem.stop();
     	Robot.driveSystem.shiftToHigh();
      }
