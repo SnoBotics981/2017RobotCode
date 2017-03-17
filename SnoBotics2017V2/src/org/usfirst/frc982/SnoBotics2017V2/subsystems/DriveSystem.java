@@ -121,10 +121,10 @@ public class DriveSystem extends Subsystem {
     	robotDrive4.tankDrive(speedLeft, -speedRight);
     }
     
-    public void autoDriveReverse (double speedLeft, double speedRight) {
+    public void autoDriveReverse (double speed) {
     	// may need to change signs to get thing moving in the 'correct' direction
     	// note how I have a negative sign for the leftValue in the useJoystickInput function
-    	robotDrive4.tankDrive(speedLeft, -speedRight);
+    	robotDrive4.tankDrive(speed, -speed);
     }
     
     public void autoDriveForward (double speed) {

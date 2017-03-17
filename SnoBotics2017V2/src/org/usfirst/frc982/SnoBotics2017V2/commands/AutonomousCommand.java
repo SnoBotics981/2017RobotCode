@@ -57,7 +57,7 @@ public class AutonomousCommand extends Command {
 		VISION_DRIVE_FORWARD,
 		VISION_DRIVE_REVERSE,
 		RELEASE_GEAR,
-		WAIT_1_4_SECOND_AFTER_GEAR_RELEASE,
+		WAIT_1_2_SECOND_AFTER_GEAR_RELEASE,
 		BACK_AWAY_FROM_PEG,
 		TERMINATION};
 	AutoPhases phase = AutoPhases.DEAD_RECKON_FORWARD;
@@ -222,7 +222,8 @@ public class AutonomousCommand extends Command {
     		if (counter > 50) { // turn for 2 seconds
     			// phase = AutoPhases.VISION_TURN;
     			// phase = AutoPhases.TERMINATION;
-    			phase = AutoPhases.RELEASE_GEAR;
+    			// phase = AutoPhases.RELEASE_GEAR;
+    			phase = AutoPhases.DEAD_RECKON_TO_PEG;
     			counter = 0;
     		}
     		break;
@@ -296,12 +297,12 @@ public class AutonomousCommand extends Command {
     		
     	case RELEASE_GEAR:
     		Robot.driveSystem.stop();
-    		Robot.gearManipulator.openPaddles();
-    		phase = AutoPhases.WAIT_1_4_SECOND_AFTER_GEAR_RELEASE;
+    		Robot.gearManipulator.closePaddles();
+    		phase = AutoPhases.WAIT_1_2_SECOND_AFTER_GEAR_RELEASE;
     		counter = 0;
     		break;
     		
-    	case WAIT_1_4_SECOND_AFTER_GEAR_RELEASE:
+    	case WAIT_1_2_SECOND_AFTER_GEAR_RELEASE:
     		Robot.driveSystem.stop();
     		
     		if (counter > 25) {
@@ -311,8 +312,12 @@ public class AutonomousCommand extends Command {
     		break;
     		
     	case BACK_AWAY_FROM_PEG:
-    		Robot.driveSystem.stop();
-    		phase = AutoPhases.TERMINATION;
+    		Robot.driveSystem.autoDriveReverse(driveHalfSpeed);
+    		if (counter > 50) {
+    			Robot.driveSystem.stop();
+    			phase = AutoPhases.TERMINATION;
+    			counter = 0;
+    		}
     		break;
     		
     	case DEAD_RECKON_TO_PEG: // drive forward 3 seconds
@@ -320,7 +325,7 @@ public class AutonomousCommand extends Command {
     		/**
     		 * Each count is approximately 0.020 seconds
     		 */
-    		if (counter > 500) { // 50 is 1 seconds
+    		if (counter > 100) { // 50 is 1 seconds
     			phase = AutoPhases.RELEASE_GEAR;
     			counter = 0;
     		}
