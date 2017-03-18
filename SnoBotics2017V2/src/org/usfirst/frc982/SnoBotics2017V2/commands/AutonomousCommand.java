@@ -57,7 +57,7 @@ public class AutonomousCommand extends Command {
 		VISION_DRIVE_FORWARD,
 		VISION_DRIVE_REVERSE,
 		RELEASE_GEAR,
-		WAIT_1_2_SECOND_AFTER_GEAR_RELEASE,
+		WAIT_2_SECOND_AFTER_GEAR_RELEASE,
 		BACK_AWAY_FROM_PEG,
 		TERMINATION};
 	AutoPhases phase = AutoPhases.DEAD_RECKON_FORWARD;
@@ -201,8 +201,8 @@ public class AutonomousCommand extends Command {
     		/**
     		 * Each count is approximately 0.020 seconds
     		 */
-    		
-    		if (counter > 200) { // 4 seconds
+    	
+    		if (counter > 200) { // 4.0 seconds
     			phase = AutoPhases.DEAD_RECKON_TURN_LEFT;
     			counter = 0;
     		}
@@ -219,7 +219,11 @@ public class AutonomousCommand extends Command {
     	case DEAD_RECKON_TURN_LEFT: // turn to goal
     		Robot.driveSystem.autoDriveTurnLeft(drive60Percent);
     		
-    		if (counter > 50) { // turn for 2 seconds
+    		// 3/17/17 1:56 PM was 55 = 1.1 seconds
+    		//                 changing to 1.3 seconds, 65
+    		// 3/17/17 9:30 PM changed to 1.2 seconds
+    		
+    		if (counter > 60) { // turn for 1.2 seconds
     			// phase = AutoPhases.VISION_TURN;
     			// phase = AutoPhases.TERMINATION;
     			// phase = AutoPhases.RELEASE_GEAR;
@@ -297,15 +301,16 @@ public class AutonomousCommand extends Command {
     		
     	case RELEASE_GEAR:
     		Robot.driveSystem.stop();
-    		Robot.gearManipulator.closePaddles();
-    		phase = AutoPhases.WAIT_1_2_SECOND_AFTER_GEAR_RELEASE;
+    		Robot.gearManipulator.openPaddles();
+    		phase = AutoPhases.WAIT_2_SECOND_AFTER_GEAR_RELEASE;
     		counter = 0;
     		break;
     		
-    	case WAIT_1_2_SECOND_AFTER_GEAR_RELEASE:
+    	case WAIT_2_SECOND_AFTER_GEAR_RELEASE:
     		Robot.driveSystem.stop();
     		
-    		if (counter > 25) {
+    		// 3/17/17 4:29 PM changed to 2 seconds pause
+    		if (counter > 100) {
     			phase = AutoPhases.BACK_AWAY_FROM_PEG;
     			counter = 0;
     		}
@@ -325,7 +330,7 @@ public class AutonomousCommand extends Command {
     		/**
     		 * Each count is approximately 0.020 seconds
     		 */
-    		if (counter > 100) { // 50 is 1 seconds
+    		if (counter > 250) { // 50 is 1 seconds
     			phase = AutoPhases.RELEASE_GEAR;
     			counter = 0;
     		}
