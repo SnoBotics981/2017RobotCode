@@ -11,6 +11,8 @@
 
 package org.usfirst.frc982.SnoBotics2017V2;
 
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -81,6 +83,19 @@ public class Robot extends IterativeRobot {
         Robot.gearManipulator.closePaddles();
         Robot.driveSystem.shiftToHigh();
         Robot.fuelDumper.resetDumper();
+        
+        /**
+         * Make a whack at vision processing
+         */
+        
+        UsbCamera camera1 = CameraServer.getInstance().startAutomaticCapture(0);
+        camera1.setResolution(320, 240);
+        camera1.setFPS(10);
+        
+        UsbCamera camera2 = CameraServer.getInstance().startAutomaticCapture(1);
+        camera2.setResolution(320, 240);
+        camera2.setFPS(10);
+
     }
 
     /**

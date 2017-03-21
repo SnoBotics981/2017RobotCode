@@ -10,8 +10,10 @@
 
 
 package org.usfirst.frc982.SnoBotics2017V2.commands;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc982.SnoBotics2017V2.Robot;
+import org.usfirst.frc982.SnoBotics2017V2.RobotMap;
 
 /**
  *
@@ -51,10 +53,12 @@ public class ShiftToHigh extends Command {
 
     // Called once after isFinished returns true
     protected void end() {
+    	RobotMap.driveSystemSpikeForLights.set(Relay.Value.kForward);
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
+    	RobotMap.driveSystemSpikeForLights.set(Relay.Value.kForward);
     }
 }

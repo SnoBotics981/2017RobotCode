@@ -10,10 +10,12 @@
 
 
 package org.usfirst.frc982.SnoBotics2017V2.commands;
+import edu.wpi.first.wpilibj.Relay;
 // not used: import edu.wpi.first.wpilibj.Joystick.ButtonType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc982.SnoBotics2017V2.Robot;
+import org.usfirst.frc982.SnoBotics2017V2.RobotMap;
 
 import com.ctre.CANTalon.TalonControlMode;
 
@@ -85,14 +87,16 @@ public class ClimbRope extends Command {
     	if (buttonState) {
     		axisValue = Robot.oi.coPilotJoystick.getY();
     		if (axisValue < 0) {
-    			Robot.ropeClimber.turnCompressorOff();
     			Robot.ropeClimber.setMotorVoltage(axisValue);
+    			Robot.ropeClimber.turnCompressorOff();
+    			RobotMap.driveSystemSpikeForLights.set(Relay.Value.kReverse);
     		} else {
     		    Robot.ropeClimber.setMotorVoltage(0);
     		}
     	} else {
-    		Robot.ropeClimber.turnCompressorOn();
     		Robot.ropeClimber.setMotorVoltage(0);
+    		Robot.ropeClimber.turnCompressorOn();
+    		RobotMap.driveSystemSpikeForLights.set(Relay.Value.kForward);
     	}
     }
 
