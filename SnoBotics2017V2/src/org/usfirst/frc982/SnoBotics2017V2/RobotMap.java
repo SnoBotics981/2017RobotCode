@@ -139,9 +139,9 @@ public class RobotMap {
          *  follower logic.
          */
         
-        // driveSystemSpikeForLights = new Relay(0,Relay.Direction.kForward);
-        // driveSystemSpikeForLights.setSafetyEnabled(false);
-        // driveSystemSpikeForLights.set(Relay.Value.kForward);
+        driveSystemSpikeForLights = new Relay(0,Relay.Direction.kBoth);
+        driveSystemSpikeForLights.setSafetyEnabled(false);
+        driveSystemSpikeForLights.set(Relay.Value.kForward);
         
         CANTalon leftSlave = driveSystemCANTalon3;
         CANTalon rightSlave = driveSystemCANTalon6;

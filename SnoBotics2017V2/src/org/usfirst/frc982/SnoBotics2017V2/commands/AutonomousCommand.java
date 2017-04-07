@@ -48,6 +48,7 @@ public class AutonomousCommand extends Command {
 	// public static Timer autoTimer; // timer used by the Autonomous Command
     public static final double AngleCenterPoint  = 10.0;
     public static final double finalDistance     = 10.0;
+    public static final double drive80Percent    =  0.80;
     public static final double drive60Percent    =  0.60;
     public static final double driveHalfSpeed    =  0.50;
     public static final double driveQuarterSpeed =  0.25;
@@ -196,15 +197,15 @@ public class AutonomousCommand extends Command {
 
     	case PAUSE_025_COUNT:
     		Robot.driveSystem.autoDriveForward(0);
-    		if (counter < 25) {
+    		if (counter < 50) {
     			phase = AutoPhases.PAUSE_025_COUNT;
     		} else {
-    			// phase = AutoPhases.CROSS_THE_BASE_LINE;
+    			phase = AutoPhases.CROSS_THE_BASE_LINE;
     			// Robot.driveSystem.shiftToHigh();
     			// phase = AutoPhases.DEAD_RECKON_FORWARD;
     			// Robot.driveSystem.shiftToLow();
-    			phase = AutoPhases.TEST_USING_ENCODER;
-    			Robot.driveSystem.shiftToLow();
+    			// phase = AutoPhases.TEST_USING_ENCODER;
+    			Robot.driveSystem.shiftToHigh();
     			counter = 0;
     		}
     		break;
@@ -224,8 +225,8 @@ public class AutonomousCommand extends Command {
     		break;
     		
     	case CROSS_THE_BASE_LINE:
-    		Robot.driveSystem.autoDriveForward(driveHalfSpeed);
-    		if (counter > 200) {
+    		Robot.driveSystem.autoDriveForward(drive80Percent);
+    		if (counter > 125) {
     			Robot.driveSystem.stop();
     			phase = AutoPhases.TERMINATION;
     			counter = 0;

@@ -89,14 +89,14 @@ public class ClimbRope extends Command {
     		if (axisValue < 0) {
     			Robot.ropeClimber.setMotorVoltage(axisValue);
     			Robot.ropeClimber.turnCompressorOff();
-    			// RobotMap.driveSystemSpikeForLights.set(Relay.Value.kReverse);
+    			RobotMap.driveSystemSpikeForLights.set(Relay.Value.kReverse);
     		} else {
     		    Robot.ropeClimber.setMotorVoltage(0);
     		}
     	} else {
     		Robot.ropeClimber.setMotorVoltage(0);
     		Robot.ropeClimber.turnCompressorOn();
-    		// RobotMap.driveSystemSpikeForLights.set(Relay.Value.kForward);
+    		RobotMap.driveSystemSpikeForLights.set(Relay.Value.kForward);
     	}
     }
 
