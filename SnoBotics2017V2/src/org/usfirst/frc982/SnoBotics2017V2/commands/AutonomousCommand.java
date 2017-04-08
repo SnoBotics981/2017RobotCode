@@ -58,6 +58,8 @@ public class AutonomousCommand extends Command {
 		PAUSE_025_COUNT,
 		TEST_USING_ENCODER,
 		CROSS_THE_BASE_LINE,
+		SHIFT_TO_HIGH,
+		PAUSE_AFTER_SHIFT,
 		DEAD_RECKON_FORWARD,
 		DEAD_RECKON_REVERSE,
 		DEAD_RECKON_TURN_LEFT,
@@ -197,7 +199,7 @@ public class AutonomousCommand extends Command {
 
     	case PAUSE_025_COUNT:
     		Robot.driveSystem.autoDriveForward(0);
-    		if (counter < 50) {
+    		if (counter < 40) {
     			phase = AutoPhases.PAUSE_025_COUNT;
     		} else {
     			phase = AutoPhases.CROSS_THE_BASE_LINE;
@@ -205,11 +207,29 @@ public class AutonomousCommand extends Command {
     			// phase = AutoPhases.DEAD_RECKON_FORWARD;
     			// Robot.driveSystem.shiftToLow();
     			// phase = AutoPhases.TEST_USING_ENCODER;
-    			Robot.driveSystem.shiftToHigh();
+    			//** Robot.driveSystem.shiftToHigh();
+    			// phase = AutoPhases.SHIFT_TO_HIGH;
     			counter = 0;
     		}
     		break;
     	
+    	case SHIFT_TO_HIGH:
+    		Robot.driveSystem.autoDriveForward(0);
+    		Robot.driveSystem.shiftToHigh();
+    		phase = AutoPhases.PAUSE_AFTER_SHIFT;
+    		counter = 0;
+    		break;
+    		
+    	case PAUSE_AFTER_SHIFT:
+    		Robot.driveSystem.autoDriveForward(0);
+    		if (counter < 5) {
+    			phase = AutoPhases.PAUSE_AFTER_SHIFT;
+    		} else {
+    			phase = AutoPhases.CROSS_THE_BASE_LINE;
+    		}
+    		counter = 0;
+    		break;
+    		
     	// dead reckon from the starting location
     		
     	case TEST_USING_ENCODER:
@@ -226,7 +246,7 @@ public class AutonomousCommand extends Command {
     		
     	case CROSS_THE_BASE_LINE:
     		Robot.driveSystem.autoDriveForward(drive80Percent);
-    		if (counter > 125) {
+    		if (counter > 63) {
     			Robot.driveSystem.stop();
     			phase = AutoPhases.TERMINATION;
     			counter = 0;
